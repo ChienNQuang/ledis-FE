@@ -2,6 +2,12 @@
 import { nextTick, onMounted, ref, watch } from 'vue'
 import CliLedisIndicator from './CliLedisIndicator.vue'
 
+interface Props {
+  focusSignal?: boolean
+}
+
+const props = defineProps<Props>()
+
 const text = ref('')
 const textArea = ref<HTMLTextAreaElement | null>(null)
 
@@ -16,6 +22,20 @@ function resize() {
 
 onMounted(resize)
 watch(text, resize)
+
+watch(
+  () => props.focusSignal,
+  async () => {
+    await nextTick()
+    focus()
+  },
+)
+function focus() {
+  textArea.value?.focus()
+}
+onMounted(() => {
+  focus()
+})
 </script>
 
 <template>

@@ -7,6 +7,11 @@ import { convertToRespStringLines } from '@/lib/resp'
 
 const logs = ref<string[]>([])
 const processing = ref(false)
+const focusSignal = ref(false)
+
+function focusInput() {
+  focusSignal.value = !focusSignal.value
+}
 
 async function sendCommand(input: string) {
   logs.value.push(`Ledis> ${input}`)
@@ -28,6 +33,7 @@ async function sendCommand(input: string) {
     logs.value.push(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
   } finally {
     processing.value = false
+    focusInput()
   }
 }
 </script>
@@ -35,10 +41,11 @@ async function sendCommand(input: string) {
 <template>
   <div class="bg-[#2c2c2c] size-full p-4">
     <div
-      class="relative border-[#6b6f24] text-[#d4be98] font-semibold border-2 size-full overflow-auto p-2 no-scrollbar"
+      class="relative cursor-text border-[#6b6f24] text-[#d4be98] font-semibold border-2 size-full overflow-auto p-2 no-scrollbar"
+      @click="focusInput"
     >
       <CliOutput :logs />
-      <CliInput v-if="!processing" @update="sendCommand($event)" />
+      <CliInput v-if="!processing" :focusSignal="focusSignal" @update="sendCommand($event)" />
     </div>
   </div>
 </template>
