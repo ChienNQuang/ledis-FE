@@ -9,7 +9,7 @@ const logs = ref<string[]>([])
 <template>
   <div class="bg-[#2c2c2c] size-full p-4">
     <div
-      class="relative border-[#6b6f24] text-[#d4be98] border-2 size-full overflow-auto p-2 no-scrollbar"
+      class="relative border-[#6b6f24] text-[#d4be98] font-semibold border-2 size-full overflow-auto p-2 no-scrollbar"
     >
       <CliOutput :logs />
       <CliInput @update="logs.push($event)" />

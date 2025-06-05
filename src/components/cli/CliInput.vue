@@ -30,8 +30,9 @@ watch(text, resize)
       autofocus
       v-model="text"
       @keydown.enter.prevent="
-        (e) => {
+        () => {
           $emit('update', text.trim())
+          text = ''
         }
       "
     />
