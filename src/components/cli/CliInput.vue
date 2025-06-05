@@ -26,7 +26,7 @@ watch(text, resize)
     <textarea
       ref="textArea"
       type="text"
-      class="bg-transparent w-full relative pl-14 flex-1 text-[#d4be98] border-none h-full outline-none resize-none no-scrollbar"
+      class="bg-transparent w-full relative pl-13 flex-1 text-[#d4be98] border-none h-full outline-none resize-none no-scrollbar"
       autofocus
       v-model="text"
       @keydown.enter.prevent="
