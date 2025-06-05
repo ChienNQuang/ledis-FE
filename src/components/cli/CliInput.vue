@@ -46,8 +46,11 @@ const commandIndex = ref(0)
 
 function prevCommand() {
   if (commandIndex.value < commands.value.length) {
+    if (commandIndex.value === 0) {
+      // Save the current text before changing it
+      prevText.value = text.value
+    }
     commandIndex.value++
-    prevText.value = text.value
     text.value = commands.value[commands.value.length - commandIndex.value] || ''
   }
 }
