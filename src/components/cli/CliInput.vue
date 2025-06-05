@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch } from 'vue'
 import CliLedisIndicator from './CliLedisIndicator.vue'
+import { useCommandHistory } from '@/stores/useCommandHistory'
+import { storeToRefs } from 'pinia'
 
 interface Props {
   focusSignal?: boolean
@@ -8,6 +10,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const prevText = ref('')
 const text = ref('')
 const textArea = ref<HTMLTextAreaElement | null>(null)
 
@@ -36,6 +39,30 @@ function focus() {
 onMounted(() => {
   focus()
 })
+
+const commandHistoryStore = useCommandHistory()
+const { commands } = storeToRefs(commandHistoryStore)
+const commandIndex = ref(0)
+
+function prevCommand() {
+  if (commandIndex.value < commands.value.length) {
+    commandIndex.value++
+    prevText.value = text.value
+    text.value = commands.value[commands.value.length - commandIndex.value] || ''
+  }
+}
+
+function nextCommand() {
+  if (commandIndex.value > 0) {
+    commandIndex.value--
+    text.value =
+      commandIndex.value === 0
+        ? prevText.value
+        : commands.value[commands.value.length - commandIndex.value] || ''
+  } else {
+    text.value = ''
+  }
+}
 </script>
 
 <template>
@@ -55,6 +82,8 @@ onMounted(() => {
           text = ''
         }
       "
+      @keydown.up.prevent="prevCommand"
+      @keydown.down.prevent="nextCommand"
     />
   </div>
 </template>

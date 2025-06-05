@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import { convertToRespStringLines } from '@/lib/resp'
+import { SendCommand } from '@/services/commands'
+import { useCommandHistory } from '@/stores/useCommandHistory'
 import { ref } from 'vue'
 import CliInput from './CliInput.vue'
 import CliOutput from './CliOutput.vue'
-import { SendCommand } from '@/services/commands'
-import { convertToRespStringLines } from '@/lib/resp'
 
 const logs = ref<string[]>([])
 const processing = ref(false)
 const focusSignal = ref(false)
+
+const { addCommand } = useCommandHistory()
 
 function focusInput() {
   focusSignal.value = !focusSignal.value
@@ -15,6 +18,7 @@ function focusInput() {
 
 async function sendCommand(input: string) {
   logs.value.push(`Ledis> ${input}`)
+  addCommand(input)
   try {
     processing.value = true
     if (input.trim() === '') {
@@ -45,7 +49,11 @@ async function sendCommand(input: string) {
       @click="focusInput"
     >
       <CliOutput :logs />
-      <CliInput v-if="!processing" :focusSignal="focusSignal" @update="sendCommand($event)" />
+      <CliInput
+        v-if="!processing"
+        :focusSignal="focusSignal"
+        @update="sendCommand($event)"
+      />
     </div>
   </div>
 </template>
