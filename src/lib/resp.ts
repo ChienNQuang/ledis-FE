@@ -16,6 +16,10 @@ export function convertToRespStringLines(value: RespValue): string[] {
       return [`"${value.value}"`]
     case RespValueType.Array: // Array
       const lines = []
+
+      if (value.value.length === 0) {
+        return ['(empty array)']
+      }
       for (let i = 1; i <= value.value.length; i++) {
         const index = `${i})`
         const itemLines = convertToRespStringLines(value.value[i - 1])
