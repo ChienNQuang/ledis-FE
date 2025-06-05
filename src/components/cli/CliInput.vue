@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch, type Ref } from 'vue'
 import CliLedisIndicator from './CliLedisIndicator.vue'
 import { useCommandHistory } from '@/stores/useCommandHistory'
 import { storeToRefs } from 'pinia'
@@ -10,21 +10,9 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const prevText = ref('')
-const text = ref('')
-const textArea = ref<HTMLTextAreaElement | null>(null)
+const { text, textArea, focus } = useTerminalInput()
 
-function resize() {
-  nextTick(() => {
-    if (textArea.value) {
-      textArea.value.style.height = 'auto'
-      textArea.value.style.height = `${textArea.value.scrollHeight}px`
-    }
-  })
-}
-
-onMounted(resize)
-watch(text, resize)
+const { prevCommand, nextCommand } = useCommandNavigation(text)
 
 watch(
   () => props.focusSignal,
@@ -33,38 +21,64 @@ watch(
     focus()
   },
 )
-function focus() {
-  textArea.value?.focus()
+
+function useTerminalInput() {
+  const text = ref('')
+  const textArea = ref<HTMLTextAreaElement | null>(null)
+
+  watch(text, resize)
+
+  onMounted(() => {
+    resize()
+    focus()
+  })
+
+  function resize() {
+    nextTick(() => {
+      if (textArea.value) {
+        textArea.value.style.height = 'auto'
+        textArea.value.style.height = `${textArea.value.scrollHeight}px`
+      }
+    })
+  }
+
+  function focus() {
+    textArea.value?.focus()
+  }
+
+  return { text, textArea, focus }
 }
-onMounted(() => {
-  focus()
-})
 
-const commandHistoryStore = useCommandHistory()
-const { commands } = storeToRefs(commandHistoryStore)
-const commandIndex = ref(0)
+function useCommandNavigation(text: Ref<string>) {
+  const prevText = ref('')
+  const commandHistoryStore = useCommandHistory()
+  const { commands } = storeToRefs(commandHistoryStore)
+  const commandIndex = ref(0)
 
-function prevCommand() {
-  if (commandIndex.value < commands.value.length) {
-    if (commandIndex.value === 0) {
-      // Save the current text before changing it
-      prevText.value = text.value
+  function prevCommand() {
+    if (commandIndex.value < commands.value.length) {
+      if (commandIndex.value === 0) {
+        // Save the current text before changing it
+        prevText.value = text.value
+      }
+      commandIndex.value++
+      text.value = commands.value[commands.value.length - commandIndex.value] || ''
     }
-    commandIndex.value++
-    text.value = commands.value[commands.value.length - commandIndex.value] || ''
   }
-}
 
-function nextCommand() {
-  if (commandIndex.value > 0) {
-    commandIndex.value--
-    text.value =
-      commandIndex.value === 0
-        ? prevText.value
-        : commands.value[commands.value.length - commandIndex.value] || ''
-  } else {
-    text.value = ''
+  function nextCommand() {
+    if (commandIndex.value > 0) {
+      commandIndex.value--
+      text.value =
+        commandIndex.value === 0
+          ? prevText.value
+          : commands.value[commands.value.length - commandIndex.value] || ''
+    } else {
+      text.value = ''
+    }
   }
+
+  return { prevCommand, nextCommand }
 }
 </script>
 
