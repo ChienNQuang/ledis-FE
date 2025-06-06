@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch, type Ref } from 'vue'
-import CliLedisIndicator from './CliLedisIndicator.vue'
 import { useCommandHistory } from '@/stores/useCommandHistory'
 import { storeToRefs } from 'pinia'
 
@@ -84,9 +83,7 @@ function useCommandNavigation(text: Ref<string>) {
 
 <template>
   <div class="relative flex-wrap">
-    <div class="absolute left-0 top-0">
-      <CliLedisIndicator />
-    </div>
+    <div class="absolute left-0 top-0">Ledis></div>
     <textarea
       ref="textArea"
       type="text"
